@@ -4,601 +4,304 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>フラッシュカード</title>
-  <script src="https://cdn.tailwindcss.com"></script>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+JP:wght@400;500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after { box-sizing: border-box; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background: #0a0a0f;
-      color: #e8e6f0;
-      font-family: 'Noto Sans JP', sans-serif;
+      font-family: 'Noto Sans JP', -apple-system, sans-serif;
+      background: #f3f3ee;
+      color: #1a1a1a;
       min-height: 100vh;
-      margin: 0;
+      font-size: 14px;
     }
-    .font-display { font-family: 'Syne', sans-serif; }
-    .font-mono { font-family: 'DM Mono', monospace; }
-
-    /* grid bg */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(120,80,255,0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(120,80,255,0.04) 1px, transparent 1px);
-      background-size: 40px 40px;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* glow blob */
-    body::after {
-      content: '';
-      position: fixed;
-      width: 600px; height: 600px;
-      background: radial-gradient(circle, rgba(100,60,240,0.12) 0%, transparent 70%);
-      top: -100px; left: 50%;
-      transform: translateX(-50%);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    #root { position: relative; z-index: 1; }
-
-    /* card flip */
+    .wrap { max-width: 540px; margin: 0 auto; padding: 40px 20px 60px; }
+    .header { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
+    .header-icon { width: 32px; height: 32px; border-radius: 8px; background: #fff; border: 1px solid #e0dfd8; display: flex; align-items: center; justify-content: center; color: #666; }
+    .header h1 { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
+    .header .fname { font-size: 11px; color: #999; margin-top: 1px; }
+    .card { background: #fff; border: 1px solid #e0dfd8; border-radius: 16px; padding: 24px; margin-bottom: 10px; }
+    .prog-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .prog-label { font-size: 12px; color: #999; }
+    .prog-count { font-size: 12px; color: #555; font-weight: 500; }
+    .prog-bar { height: 3px; background: #eceae3; border-radius: 99px; overflow: hidden; }
+    .prog-fill { height: 100%; background: #1a1a1a; border-radius: 99px; transition: width 0.5s ease; }
+    /* flip */
     .perspective { perspective: 1200px; }
-    .card-inner {
-      transition: transform 0.55s cubic-bezier(0.45, 0, 0.1, 1);
-      transform-style: preserve-3d;
-      position: relative;
-      width: 100%; height: 100%;
-    }
+    .card-inner { transform-style: preserve-3d; transition: transform 0.5s cubic-bezier(0.4,0,0.2,1); position: relative; width: 100%; height: 100%; }
     .card-inner.flipped { transform: rotateY(180deg); }
-    .card-face {
-      position: absolute;
-      inset: 0;
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
-      border-radius: 20px;
-    }
-    .card-front {
-      background: #13121f;
-      border: 1px solid rgba(255,255,255,0.08);
-    }
-    .card-back {
-      background: linear-gradient(135deg, #1e0f4a 0%, #0d0d1f 100%);
-      border: 1px solid rgba(130,90,255,0.3);
-      transform: rotateY(180deg);
-    }
-
-    /* shimmer on card */
-    .card-front::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: 20px;
-      background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 60%);
-      pointer-events: none;
-    }
-
-    /* progress bar */
-    .prog-bar {
-      height: 3px;
-      background: rgba(255,255,255,0.08);
-      border-radius: 99px;
-      overflow: hidden;
-    }
-    .prog-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #7c4dff, #b47cff);
-      border-radius: 99px;
-      transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
-    }
-
-    /* pill badges */
-    .pill {
-      display: inline-flex; align-items: center; gap: 5px;
-      padding: 4px 12px;
-      border-radius: 99px;
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.03em;
-    }
-    .pill-purple { background: rgba(124,77,255,0.15); color: #b47cff; border: 1px solid rgba(124,77,255,0.25); }
-    .pill-green  { background: rgba(52,211,153,0.12); color: #34d399; border: 1px solid rgba(52,211,153,0.22); }
-    .pill-amber  { background: rgba(251,191,36,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.22); }
-
-    /* icon buttons */
-    .icon-btn {
-      display: flex; align-items: center; justify-content: center;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.08);
-      background: rgba(255,255,255,0.04);
-      transition: all 0.18s;
-      cursor: pointer;
-      color: #aaa8c2;
-    }
-    .icon-btn:hover { background: rgba(255,255,255,0.08); color: #e8e6f0; border-color: rgba(255,255,255,0.14); }
-    .icon-btn:active { transform: scale(0.95); }
-    .icon-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
-
-    .nav-btn-next {
-      background: rgba(124,77,255,0.2);
-      border-color: rgba(124,77,255,0.4);
-      color: #c4a8ff;
-    }
-    .nav-btn-next:hover:not(:disabled) { background: rgba(124,77,255,0.32); color: #e0d0ff; }
-
-    /* upload area */
-    .upload-zone {
-      border: 1px dashed rgba(124,77,255,0.35);
-      border-radius: 16px;
-      background: rgba(124,77,255,0.04);
-      transition: all 0.2s;
-      cursor: pointer;
-    }
-    .upload-zone:hover { background: rgba(124,77,255,0.08); border-color: rgba(124,77,255,0.55); }
-
-    /* learned toggle */
-    .learned-btn {
-      display: flex; align-items: center; gap: 8px;
-      padding: 10px 22px;
-      border-radius: 12px;
-      font-size: 13px; font-weight: 500;
-      transition: all 0.2s;
-      cursor: pointer;
-      border: 1px solid;
-    }
-    .learned-btn-off { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.12); color: #aaa8c2; }
-    .learned-btn-off:hover { background: rgba(52,211,153,0.1); border-color: rgba(52,211,153,0.3); color: #34d399; }
-    .learned-btn-on  { background: rgba(52,211,153,0.15); border-color: rgba(52,211,153,0.35); color: #34d399; }
-
-    /* filter toggle */
-    .filter-btn { padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 500; border: 1px solid; cursor: pointer; transition: all 0.18s; }
-    .filter-off { background: transparent; border-color: rgba(255,255,255,0.1); color: #777690; }
-    .filter-off:hover { border-color: rgba(255,255,255,0.2); color: #aaa8c2; }
-    .filter-on  { background: rgba(251,191,36,0.12); border-color: rgba(251,191,36,0.3); color: #fbbf24; }
-
-    /* save/dl buttons */
-    .action-btn {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 500;
-      border: 1px solid; cursor: pointer; transition: all 0.18s;
-    }
-    .save-btn { background: rgba(52,211,153,0.1); border-color: rgba(52,211,153,0.25); color: #34d399; }
-    .save-btn:hover { background: rgba(52,211,153,0.18); }
-    .reset-btn { background: transparent; border-color: rgba(255,255,255,0.08); color: #555470; }
-    .reset-btn:hover { color: #aaa8c2; border-color: rgba(255,255,255,0.15); }
-
-    .hint-pulse {
-      animation: hintpulse 2.5s ease-in-out infinite;
-      color: #555470;
-      font-size: 11px;
-    }
-    @keyframes hintpulse { 0%,100%{opacity:0.4} 50%{opacity:0.9} }
-
-    .card-area {
-      cursor: pointer;
-      user-select: none;
-    }
-
-    /* slide animation for card swap */
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateX(24px); }
-      to   { opacity: 1; transform: translateX(0); }
-    }
-    .card-sliding { animation: slideIn 0.22s ease-out; }
-
-    .error-box {
-      border-left: 3px solid #f87171;
-      background: rgba(248,113,113,0.08);
-      border-radius: 0 8px 8px 0;
-      padding: 10px 14px;
-      font-size: 13px; color: #f87171;
-    }
-
-    .all-done-icon {
-      width: 72px; height: 72px;
-      border-radius: 50%;
-      background: rgba(52,211,153,0.1);
-      border: 1px solid rgba(52,211,153,0.25);
-      display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 20px;
-    }
+    .card-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px 28px; }
+    .face-front { background: #fff; border: 1px solid #e0dfd8; }
+    .face-back  { background: #1a1a1a; border: 1px solid #1a1a1a; transform: rotateY(180deg); }
+    .face-label { font-size: 10px; letter-spacing: 0.1em; position: absolute; top: 16px; left: 20px; color: #ccc; }
+    .face-back .face-label { color: #444; }
+    .face-text  { font-size: 28px; font-weight: 600; text-align: center; line-height: 1.4; word-break: break-word; }
+    .face-front .face-text { color: #1a1a1a; }
+    .face-back  .face-text { color: #fff; margin-bottom: 52px; }
+    .face-hint  { position: absolute; bottom: 16px; font-size: 11px; color: #ccc; animation: pu 2.5s ease-in-out infinite; }
+    @keyframes pu { 0%,100%{opacity:.35} 50%{opacity:.8} }
+    .badge-learned { position: absolute; top: 14px; right: 16px; display: flex; align-items: center; gap: 4px; font-size: 11px; color: #666; background: #f3f3ee; border: 1px solid #e0dfd8; border-radius: 6px; padding: 2px 8px; }
+    .learn-btn { position: absolute; bottom: 18px; display: flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; border: 1px solid; font-family: inherit; }
+    .learn-btn-off { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.14); color: #aaa; }
+    .learn-btn-off:hover { background: rgba(255,255,255,0.13); color: #fff; }
+    .learn-btn-on  { background: #fff; border-color: #fff; color: #1a1a1a; }
+    /* nav */
+    .nav { display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .nav-btn { width: 42px; height: 42px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; border: 1px solid #e0dfd8; background: #fff; color: #555; transition: all 0.15s; font-family: inherit; }
+    .nav-btn:hover:not(:disabled) { background: #f7f7f3; border-color: #bbb; color: #1a1a1a; }
+    .nav-btn:active:not(:disabled) { transform: scale(0.95); }
+    .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .nav-primary { background: #1a1a1a; border-color: #1a1a1a; color: #fff; }
+    .nav-primary:hover:not(:disabled) { background: #2d2d2d; }
+    .nav-counter { font-size: 12px; color: #999; min-width: 56px; text-align: center; }
+    /* toolbar */
+    .toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+    .tbtn { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 7px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid; transition: all 0.15s; font-family: inherit; }
+    .t-ghost  { background: transparent; border-color: transparent; color: #999; }
+    .t-ghost:hover { color: #555; background: #eceae3; border-color: #eceae3; }
+    .t-outline { background: #fff; border-color: #e0dfd8; color: #555; }
+    .t-outline:hover { border-color: #bbb; color: #1a1a1a; }
+    .t-active { background: #1a1a1a; border-color: #1a1a1a; color: #fff; }
+    /* upload */
+    .upload-zone { border: 1.5px dashed #d5d3cc; border-radius: 12px; background: #fafaf7; padding: 32px 20px; text-align: center; cursor: pointer; transition: all 0.18s; display: block; }
+    .upload-zone:hover { background: #f3f3ee; border-color: #999; }
+    .upload-icon { width: 44px; height: 44px; border-radius: 10px; background: #f3f3ee; border: 1px solid #e0dfd8; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; color: #888; }
+    .upload-title { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+    .upload-sub { font-size: 12px; color: #999; line-height: 1.7; }
+    .done-icon { width: 50px; height: 50px; border-radius: 50%; background: #f3f3ee; border: 1px solid #e0dfd8; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; color: #666; }
+    .error-box { border-left: 3px solid #e04040; background: #fff5f5; border-radius: 0 8px 8px 0; padding: 10px 14px; font-size: 13px; color: #c03030; margin-bottom: 14px; }
+    @keyframes fi { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
+    .anim { animation: fi 0.2s ease-out; }
   </style>
 </head>
 <body>
 <div id="root"></div>
-
 <script type="text/babel">
 const { useState, useRef, useEffect, useCallback } = React;
 
-const SVG = ({ d, size=16, className='' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    {typeof d === 'string' ? <path d={d}/> : d}
-  </svg>
+const Svg = ({ children, size=15 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0}}>{children}</svg>
 );
+const CheckIco   = ({s=15}) => <Svg size={s}><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></Svg>;
+const LeftIco    = ({s=15}) => <Svg size={s}><path d="m15 18-6-6 6-6"/></Svg>;
+const RightIco   = ({s=15}) => <Svg size={s}><path d="m9 18 6-6-6-6"/></Svg>;
+const ShuffleIco = ({s=15}) => <Svg size={s}><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/><path d="m18 2 4 4-4 4"/><path d="M2 6h1.9c1.5 0 2.8.8 3.6 2.1"/><path d="m22 18-4 4v-8z"/></Svg>;
+const UploadIco  = ({s=15}) => <Svg size={s}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></Svg>;
+const SaveIco    = ({s=15}) => <Svg size={s}><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></Svg>;
+const FilterIco  = ({s=15}) => <Svg size={s}><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></Svg>;
+const ResetIco   = ({s=15}) => <Svg size={s}><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></Svg>;
+const DlIco      = ({s=15}) => <Svg size={s}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></Svg>;
+const FileIco    = ({s=15}) => <Svg size={s}><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></Svg>;
 
-const ICONS = {
-  upload: <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></>,
-  left: <path d="m15 18-6-6 6-6"/>,
-  right: <path d="m9 18 6-6-6-6"/>,
-  shuffle: <><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/><path d="m18 2 4 4-4 4"/><path d="M2 6h1.9c1.5 0 2.8.8 3.6 2.1"/><path d="m22 18-4 4v-8z"/></>,
-  reset: <><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></>,
-  download: <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></>,
-  filter: <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>,
-  save: <><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></>,
-  check: <><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></>,
-  alert: <><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></>,
-  file: <><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></>,
+const sto = {
+  get: (k,d) => { try{const v=localStorage.getItem(k);return v!==null?JSON.parse(v):d;}catch{return d;} },
+  set: (k,v) => { try{localStorage.setItem(k,JSON.stringify(v));}catch{} },
+  del: (k)   => { try{localStorage.removeItem(k);}catch{} },
 };
 
-const Icon = ({ name, size=16 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    {ICONS[name]}
-  </svg>
-);
-
-const load = (k, d) => { try { const s = localStorage.getItem(k); return s !== null ? JSON.parse(s) : d; } catch { return d; } };
-const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
-
 function App() {
-  const [cards, setCards] = useState(() => load('fc_cards', []));
-  const [currentIndex, setCurrentIndex] = useState(() => load('fc_idx', 0));
-  const [isFlipped, setIsFlipped] = useState(false);
-  const [fileName, setFileName] = useState(() => load('fc_fname', ''));
-  const [error, setError] = useState('');
-  const [filterUnlearned, setFilterUnlearned] = useState(() => load('fc_filter', false));
+  const [cards,   setCards]   = useState(() => sto.get('fc3_cards',[]));
+  const [idx,     setIdx]     = useState(() => sto.get('fc3_idx',0));
+  const [flipped, setFlipped] = useState(false);
+  const [fname,   setFname]   = useState(() => sto.get('fc3_fname',''));
+  const [filterOn,setFilterOn]= useState(() => sto.get('fc3_filter',false));
+  const [error,   setError]   = useState('');
   const [animKey, setAnimKey] = useState(0);
   const fileRef = useRef(null);
 
-  useEffect(() => { save('fc_cards', cards); }, [cards]);
-  useEffect(() => { save('fc_idx', currentIndex); }, [currentIndex]);
-  useEffect(() => { save('fc_fname', fileName); }, [fileName]);
-  useEffect(() => { save('fc_filter', filterUnlearned); }, [filterUnlearned]);
+  useEffect(()=>{ sto.set('fc3_cards',cards);   },[cards]);
+  useEffect(()=>{ sto.set('fc3_idx',idx);       },[idx]);
+  useEffect(()=>{ sto.set('fc3_fname',fname);   },[fname]);
+  useEffect(()=>{ sto.set('fc3_filter',filterOn);},[filterOn]);
 
-  const displayCards = filterUnlearned ? cards.filter(c => !c.learned) : cards;
+  const displayed = filterOn ? cards.filter(c=>!c.learned) : cards;
+  const curId  = cards[idx]?.id;
+  const dispIdx= displayed.findIndex(c=>c.id===curId);
+  const safe   = dispIdx>=0 ? dispIdx : 0;
 
-  // Find where the current card lands in the display list
-  const currentCardId = cards[currentIndex]?.id;
-  const displayIndex = displayCards.findIndex(c => c.id === currentCardId);
-  const safeDispIdx = displayIndex >= 0 ? displayIndex : 0;
-
-  // BUG FIX: When filterUnlearned changes and current card would disappear,
-  // find next unlearned card and reset flip
-  useEffect(() => {
-    if (filterUnlearned && cards[currentIndex]?.learned) {
-      const next = cards.find((c, i) => i > currentIndex && !c.learned)
-                || cards.find(c => !c.learned);
-      if (next) {
-        setCurrentIndex(cards.findIndex(c => c.id === next.id));
-      }
-      setIsFlipped(false);
-    }
-  }, [filterUnlearned]);
-
-  const goTo = useCallback((newDispIdx) => {
-    if (newDispIdx < 0 || newDispIdx >= displayCards.length) return;
-    setIsFlipped(false);
-    const target = displayCards[newDispIdx];
-    const targetIdx = cards.findIndex(c => c.id === target.id);
-    // Small delay so the card flips back before sliding
-    setTimeout(() => {
-      setCurrentIndex(targetIdx);
-      setAnimKey(k => k + 1);
-    }, 140);
-  }, [displayCards, cards]);
+  const goTo = useCallback((nd) => {
+    if (nd<0||nd>=displayed.length) return;
+    setFlipped(false);
+    const ti = cards.findIndex(c=>c.id===displayed[nd].id);
+    setTimeout(()=>{ setIdx(ti); setAnimKey(k=>k+1); },130);
+  },[displayed,cards]);
 
   const toggleLearned = (e) => {
     e.stopPropagation();
-    if (!cards[currentIndex]) return;
-    const updated = cards.map((c, i) => i === currentIndex ? { ...c, learned: !c.learned } : c);
+    if (!cards[idx]) return;
+    const updated = cards.map((c,i)=>i===idx?{...c,learned:!c.learned}:c);
     setCards(updated);
-
-    // BUG FIX: if we just marked as learned and filter is on, advance to next unlearned card
-    if (filterUnlearned && !cards[currentIndex].learned) {
-      // The card is being marked as learned; move forward
-      const remaining = updated.filter(c => !c.learned);
-      if (remaining.length > 0) {
-        // Find the next unlearned card after this one
-        const nextUnlearned = updated.find((c, i) => i > currentIndex && !c.learned)
-                           || updated.find(c => !c.learned);
-        setIsFlipped(false);
-        if (nextUnlearned) {
-          setTimeout(() => {
-            setCurrentIndex(updated.findIndex(c => c.id === nextUnlearned.id));
-            setAnimKey(k => k + 1);
-          }, 300);
-        }
-      } else {
-        setIsFlipped(false);
-      }
+    if (filterOn && !cards[idx].learned) {
+      const next = updated.find((c,i)=>i>idx&&!c.learned)||updated.find(c=>!c.learned);
+      setFlipped(false);
+      if (next) setTimeout(()=>{ setIdx(updated.findIndex(c=>c.id===next.id)); setAnimKey(k=>k+1); },280);
     }
   };
 
-  const shuffleCards = () => {
-    setIsFlipped(false);
-    setTimeout(() => {
-      const s = [...cards];
-      for (let i = s.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [s[i], s[j]] = [s[j], s[i]];
-      }
-      setCards(s);
-      setCurrentIndex(0);
-      setAnimKey(k => k + 1);
-    }, 150);
+  const shuffle = () => {
+    setFlipped(false);
+    setTimeout(()=>{
+      const s=[...cards];
+      for(let i=s.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[s[i],s[j]]=[s[j],s[i]];}
+      setCards(s);setIdx(0);setAnimKey(k=>k+1);
+    },130);
   };
 
   const parseCSV = (text) => {
-    const lines = text.split('\n');
-    const result = [];
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].trim();
-      if (!line) continue;
-      const values = [];
-      let cur = '', inQ = false;
-      for (const ch of line) {
-        if (ch === '"') { inQ = !inQ; }
-        else if (ch === ',' && !inQ) { values.push(cur); cur = ''; }
-        else { cur += ch; }
-      }
-      values.push(cur);
-      if (values.length >= 2) {
-        const front = values[0].replace(/^"|"$/g, '').trim();
-        const back  = values[1].replace(/^"|"$/g, '').trim();
-        let learned = false;
-        if (values[2]) {
-          const st = values[2].replace(/^"|"$/g, '').trim().toLowerCase();
-          learned = st === '1' || st === 'true' || st === '済';
-        }
-        if (front && back) result.push({ front, back, learned, id: i });
+    const lines=text.split('\n'),result=[];
+    for(let i=0;i<lines.length;i++){
+      const line=lines[i].trim();if(!line)continue;
+      const vals=[];let cur='',inQ=false;
+      for(const ch of line){if(ch==='"')inQ=!inQ;else if(ch===','&&!inQ){vals.push(cur);cur='';}else cur+=ch;}
+      vals.push(cur);
+      if(vals.length>=2){
+        const front=vals[0].replace(/^"|"$/g,'').trim();
+        const back =vals[1].replace(/^"|"$/g,'').trim();
+        let learned=false;
+        if(vals[2]){const st=vals[2].replace(/^"|"$/g,'').trim().toLowerCase();learned=st==='1'||st==='true'||st==='済';}
+        if(front&&back)result.push({front,back,learned,id:i});
       }
     }
-    if (result.length && (result[0].front.includes('表面') || result[0].front === 'front' || result[0].front === '問題'))
-      result.shift();
+    if(result.length&&(result[0].front.includes('表面')||result[0].front==='front'||result[0].front==='問題'))result.shift();
     return result;
   };
 
   const handleFile = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    if (!file.name.endsWith('.csv')) { setError('CSVファイル（.csv）を選択してください。'); return; }
-    setError('');
-    setFileName(file.name);
-    const reader = new FileReader();
-    reader.onload = ev => {
-      const parsed = parseCSV(ev.target.result);
-      if (parsed.length > 0) {
-        setCards(parsed); setCurrentIndex(0); setIsFlipped(false); setFilterUnlearned(false);
-      } else {
-        setError('有効なデータが見つかりませんでした。');
-        setFileName('');
-        if (fileRef.current) fileRef.current.value = '';
-      }
+    const file=e.target.files[0];if(!file)return;
+    if(!file.name.endsWith('.csv')){setError('CSVファイル（.csv）を選択してください。');return;}
+    setError('');setFname(file.name);
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      const parsed=parseCSV(ev.target.result);
+      if(parsed.length){setCards(parsed);setIdx(0);setFlipped(false);setFilterOn(false);}
+      else{setError('有効なデータが見つかりませんでした。');setFname('');if(fileRef.current)fileRef.current.value='';}
     };
-    reader.onerror = () => setError('ファイル読み込みエラー。');
+    reader.onerror=()=>setError('ファイル読み込みエラー。');
     reader.readAsText(file);
   };
 
-  const downloadCSV = (content, name) => {
-    const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), content], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = name;
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  const dlCSV=(content,name)=>{
+    const blob=new Blob([new Uint8Array([0xEF,0xBB,0xBF]),content],{type:'text/csv;charset=utf-8;'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download=name;
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
   };
 
-  const downloadSample = () => {
-    downloadCSV("表面（問題）,裏面（答え）,状態(0=未/1=済)\nApple,りんご,0\nDog,犬,1\nCat,猫,0\nWater,水,0", 'sample_flashcards.csv');
+  const downloadSample=()=>dlCSV("表面（問題）,裏面（答え）,状態(0=未/1=済)\nApple,りんご,0\nDog,犬,1\nCat,猫,0\nWater,水,0\nBook,本,1",'sample_flashcards.csv');
+
+  const saveProgress=()=>{
+    if(!cards.length)return;
+    const esc=s=>(s.includes(',')||s.includes('"')||s.includes('\n'))?`"${s.replace(/"/g,'""')}"`:s;
+    let csv="表面（問題）,裏面（答え）,状態(0=未/1=済)\n";
+    cards.forEach(c=>{csv+=`${esc(c.front)},${esc(c.back)},${c.learned?1:0}\n`;});
+    dlCSV(csv,`${(fname||'flashcards').replace('.csv','').replace('_progress','')}_progress.csv`);
   };
 
-  const saveProgress = () => {
-    if (!cards.length) return;
-    const esc = s => (s.includes(',') || s.includes('"') || s.includes('\n')) ? `"${s.replace(/"/g,'""')}"` : s;
-    let csv = "表面（問題）,裏面（答え）,状態(0=未/1=済)\n";
-    cards.forEach(c => { csv += `${esc(c.front)},${esc(c.back)},${c.learned ? 1 : 0}\n`; });
-    const base = fileName ? fileName.replace('.csv','').replace('_progress','') : 'flashcards';
-    downloadCSV(csv, `${base}_progress.csv`);
+  const reset=()=>{
+    setCards([]);setFname('');setIdx(0);setFlipped(false);setError('');setFilterOn(false);
+    ['fc3_cards','fc3_idx','fc3_fname','fc3_filter'].forEach(k=>sto.del(k));
+    if(fileRef.current)fileRef.current.value='';
   };
 
-  const resetApp = () => {
-    setCards([]); setFileName(''); setCurrentIndex(0); setIsFlipped(false);
-    setError(''); setFilterUnlearned(false);
-    ['fc_cards','fc_idx','fc_fname','fc_filter'].forEach(k => localStorage.removeItem(k));
-    if (fileRef.current) fileRef.current.value = '';
-  };
-
-  const learnedCount = cards.filter(c => c.learned).length;
-  const pct = cards.length > 0 ? Math.round(learnedCount / cards.length * 100) : 0;
-  const allDoneInFilter = filterUnlearned && displayCards.length === 0 && cards.length > 0;
-  const currentCard = cards[currentIndex];
+  const learnedCount=cards.filter(c=>c.learned).length;
+  const pct=cards.length>0?Math.round(learnedCount/cards.length*100):0;
+  const allDone=filterOn&&displayed.length===0&&cards.length>0;
+  const cur=cards[idx];
 
   return (
-    <div style={{ maxWidth: 520, margin: '0 auto', padding: '48px 20px' }}>
-
-      {/* Header */}
-      <div style={{ marginBottom: 40, display: 'flex', alignItems: 'center', gap: 12 }}>
-        <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(124,77,255,0.18)', border: '1px solid rgba(124,77,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#b47cff' }}>
-          <Icon name="file" size={18} />
-        </div>
+    <div className="wrap">
+      <div className="header">
+        <div className="header-icon"><FileIco s={16}/></div>
         <div>
-          <h1 className="font-display" style={{ fontSize: 20, fontWeight: 800, color: '#e8e6f0', margin: 0, letterSpacing: '-0.02em' }}>フラッシュカード</h1>
-          {fileName && <p style={{ fontSize: 11, color: '#555470', margin: 0 }} className="font-mono">{fileName}</p>}
+          <h1>フラッシュカード</h1>
+          {fname&&<div className="fname">{fname}</div>}
         </div>
       </div>
 
-      {error && (
-        <div className="error-box" style={{ marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Icon name="alert" size={14} /> {error}
-        </div>
-      )}
+      {error&&<div className="error-box">⚠ {error}</div>}
 
-      {cards.length === 0 ? (
-        /* Upload screen */
-        <div style={{ background: '#13121f', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20, padding: 32 }}>
-          <div style={{ textAlign: 'center', marginBottom: 28 }}>
-            <div style={{ width: 56, height: 56, borderRadius: 14, background: 'rgba(124,77,255,0.12)', border: '1px solid rgba(124,77,255,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', color: '#9b6fff' }}>
-              <Icon name="upload" size={24} />
-            </div>
-            <p className="font-display" style={{ fontSize: 18, fontWeight: 700, margin: '0 0 8px', color: '#e8e6f0' }}>CSVを読み込む</p>
-            <p style={{ fontSize: 13, color: '#555470', margin: 0, lineHeight: 1.7 }}>1列目：問題　2列目：答え<br/>進捗付きCSVも対応しています</p>
-          </div>
-
-          <label className="upload-zone" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '28px 20px', gap: 8, marginBottom: 20 }}>
-            <span style={{ fontSize: 13, color: '#9b6fff', fontWeight: 500 }}>クリックしてファイルを選択</span>
-            <span style={{ fontSize: 11, color: '#3d3b57' }} className="font-mono">.csv 形式のみ</span>
-            <input type="file" accept=".csv" onChange={handleFile} ref={fileRef} style={{ display: 'none' }} />
+      {cards.length===0 ? (
+        <div className="card">
+          <label className="upload-zone">
+            <div className="upload-icon"><UploadIco s={20}/></div>
+            <div className="upload-title">CSVファイルを選択</div>
+            <div className="upload-sub">1列目：問題　2列目：答え<br/>進捗付きCSVも読み込めます</div>
+            <input type="file" accept=".csv" onChange={handleFile} ref={fileRef} style={{display:'none'}}/>
           </label>
-
-          <div style={{ textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: 20 }}>
-            <button onClick={downloadSample} className="action-btn" style={{ background: 'rgba(255,255,255,0.04)', borderColor: 'rgba(255,255,255,0.1)', color: '#555470', margin: '0 auto' }}>
-              <Icon name="download" size={13} /> サンプルCSVをダウンロード
+          <div style={{textAlign:'center',marginTop:16,paddingTop:16,borderTop:'1px solid #eceae3'}}>
+            <button onClick={downloadSample} className="tbtn t-ghost" style={{margin:'0 auto'}}>
+              <DlIco s={13}/> サンプルCSVをダウンロード
             </button>
           </div>
         </div>
       ) : (
         <>
-          {/* Toolbar */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, gap: 8, flexWrap: 'wrap' }}>
-            <button onClick={resetApp} className="action-btn reset-btn" style={{ padding: '5px 12px' }}>
-              <Icon name="reset" size={12} /> 終了
-            </button>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <button
-                onClick={() => { setFilterUnlearned(f => !f); setIsFlipped(false); }}
-                className={`filter-btn ${filterUnlearned ? 'filter-on' : 'filter-off'}`}
-              >
-                <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                  <Icon name="filter" size={11} /> 未学習のみ
-                </span>
+          <div className="toolbar">
+            <button onClick={reset} className="tbtn t-ghost"><ResetIco s={13}/> 終了</button>
+            <div style={{display:'flex',gap:8}}>
+              <button onClick={()=>{setFilterOn(f=>!f);setFlipped(false);}} className={`tbtn ${filterOn?'t-active':'t-outline'}`}>
+                <FilterIco s={13}/> 未学習のみ
               </button>
-              <button onClick={saveProgress} className="action-btn save-btn">
-                <Icon name="save" size={12} /> 進捗を保存
-              </button>
+              <button onClick={saveProgress} className="tbtn t-outline"><SaveIco s={13}/> 進捗を保存</button>
             </div>
           </div>
 
-          {/* Progress */}
-          <div style={{ background: '#13121f', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, padding: '16px 20px', marginBottom: 24 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-              <span style={{ fontSize: 12, color: '#555470', fontWeight: 500 }}>学習進捗</span>
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                <span className="pill pill-green">
-                  <Icon name="check" size={11} /> {learnedCount} / {cards.length} 覚えた
-                </span>
-                <span className="pill pill-purple" style={{ fontFamily: 'DM Mono, monospace' }}>{pct}%</span>
-              </div>
+          <div className="card" style={{padding:'16px 20px',marginBottom:10}}>
+            <div className="prog-row">
+              <span className="prog-label">学習進捗</span>
+              <span className="prog-count">{learnedCount} / {cards.length} 覚えた　{pct}%</span>
             </div>
-            <div className="prog-bar">
-              <div className="prog-fill" style={{ width: `${pct}%` }} />
-            </div>
+            <div className="prog-bar"><div className="prog-fill" style={{width:`${pct}%`}}/></div>
           </div>
 
-          {allDoneInFilter ? (
-            <div style={{ background: '#13121f', border: '1px solid rgba(52,211,153,0.18)', borderRadius: 20, padding: '52px 32px', textAlign: 'center' }}>
-              <div className="all-done-icon">
-                <Icon name="check" size={32} />
-              </div>
-              <p className="font-display" style={{ fontSize: 20, fontWeight: 700, margin: '0 0 8px', color: '#34d399' }}>すべて覚えました！</p>
-              <p style={{ fontSize: 13, color: '#555470', marginBottom: 24 }}>未学習のカードはありません</p>
-              <button onClick={() => { setFilterUnlearned(false); setIsFlipped(false); }}
-                style={{ padding: '10px 24px', background: 'rgba(52,211,153,0.12)', border: '1px solid rgba(52,211,153,0.3)', borderRadius: 10, color: '#34d399', fontWeight: 500, fontSize: 13, cursor: 'pointer' }}>
+          {allDone ? (
+            <div className="card" style={{textAlign:'center',padding:'48px 32px'}}>
+              <div className="done-icon"><CheckIco s={24}/></div>
+              <div style={{fontSize:16,fontWeight:600,marginBottom:8}}>すべて覚えました！</div>
+              <div style={{fontSize:13,color:'#999',marginBottom:20}}>未学習のカードはありません</div>
+              <button onClick={()=>{setFilterOn(false);setFlipped(false);}} className="tbtn t-outline" style={{margin:'0 auto',padding:'8px 20px'}}>
                 全カードを表示する
               </button>
             </div>
           ) : (
             <>
-              {/* Counter */}
-              <div style={{ textAlign: 'center', marginBottom: 14 }}>
-                <span className="font-mono pill pill-purple" style={{ fontSize: 12 }}>
-                  {safeDispIdx + 1} / {displayCards.length}
-                  {filterUnlearned && <span style={{ marginLeft: 6, opacity: 0.6 }}>未学習</span>}
+              <div style={{textAlign:'center',marginBottom:8}}>
+                <span style={{fontSize:12,color:'#bbb'}}>
+                  {safe+1} / {displayed.length}{filterOn&&<span style={{marginLeft:4}}>（未学習）</span>}
                 </span>
               </div>
 
-              {/* Card */}
-              <div
-                className="perspective card-area"
-                style={{ width: '100%', height: 340, marginBottom: 20 }}
-                onClick={() => setIsFlipped(f => !f)}
-              >
-                <div key={animKey} className={`card-inner card-sliding ${isFlipped ? 'flipped' : ''}`}>
+              <div className="perspective" style={{width:'100%',height:290,marginBottom:10,cursor:'pointer'}}
+                onClick={()=>setFlipped(f=>!f)}>
+                <div key={animKey} className={`card-inner anim${flipped?' flipped':''}`}>
 
-                  {/* Front */}
-                  <div className="card-face card-front" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 36, position: 'relative' }}>
-                    <div style={{ position: 'absolute', top: 18, left: 22 }}>
-                      <span className="font-mono" style={{ fontSize: 10, color: '#3d3b57', letterSpacing: '0.12em' }}>QUESTION</span>
-                    </div>
-                    {currentCard?.learned && (
-                      <div style={{ position: 'absolute', top: 14, right: 18 }}>
-                        <span className="pill pill-green" style={{ fontSize: 10 }}>
-                          <Icon name="check" size={10} /> 覚えた
-                        </span>
-                      </div>
-                    )}
-                    <p style={{ fontSize: currentCard?.front?.length > 20 ? 24 : 34, fontWeight: 700, color: '#e8e6f0', textAlign: 'center', margin: 0, lineHeight: 1.4, wordBreak: 'break-word' }}>
-                      {currentCard?.front}
-                    </p>
-                    <p className="hint-pulse" style={{ position: 'absolute', bottom: 18, left: 0, right: 0, textAlign: 'center' }}>
-                      タップして裏返す
-                    </p>
+                  <div className="card-face face-front">
+                    <span className="face-label">QUESTION</span>
+                    {cur?.learned&&<div className="badge-learned"><CheckIco s={11}/> 覚えた</div>}
+                    <div className="face-text" style={{fontSize:cur?.front?.length>18?20:28}}>{cur?.front}</div>
+                    <span className="face-hint">タップして裏返す</span>
                   </div>
 
-                  {/* Back */}
-                  <div className="card-face card-back" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 36, position: 'relative' }}>
-                    <div style={{ position: 'absolute', top: 18, left: 22 }}>
-                      <span className="font-mono" style={{ fontSize: 10, color: 'rgba(180,124,255,0.5)', letterSpacing: '0.12em' }}>ANSWER</span>
-                    </div>
-                    <p style={{ fontSize: currentCard?.back?.length > 20 ? 24 : 34, fontWeight: 700, color: '#e8e6f0', textAlign: 'center', margin: '0 0 52px', lineHeight: 1.4, wordBreak: 'break-word' }}>
-                      {currentCard?.back}
-                    </p>
-                    <div style={{ position: 'absolute', bottom: 20, left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
-                      <button
-                        onClick={toggleLearned}
-                        className={`learned-btn ${currentCard?.learned ? 'learned-btn-on' : 'learned-btn-off'}`}
-                      >
-                        <Icon name="check" size={14} />
-                        {currentCard?.learned ? '覚えた！（解除する）' : 'このカードを「覚えた」にする'}
-                      </button>
-                    </div>
+                  <div className="card-face face-back">
+                    <span className="face-label">ANSWER</span>
+                    <div className="face-text" style={{fontSize:cur?.back?.length>18?20:28,color:'#fff'}}>{cur?.back}</div>
+                    <button onClick={toggleLearned} className={`learn-btn ${cur?.learned?'learn-btn-on':'learn-btn-off'}`}>
+                      <CheckIco s={13}/>
+                      {cur?.learned?'覚えた！（解除する）':'「覚えた」にする'}
+                    </button>
                   </div>
 
                 </div>
               </div>
 
-              {/* Nav */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
-                <button
-                  className="icon-btn"
-                  style={{ width: 52, height: 52 }}
-                  onClick={() => goTo(safeDispIdx - 1)}
-                  disabled={safeDispIdx === 0}
-                >
-                  <Icon name="left" size={22} />
-                </button>
-
-                <button
-                  className="icon-btn"
-                  style={{ width: 44, height: 44 }}
-                  onClick={shuffleCards}
-                  title="シャッフル"
-                >
-                  <Icon name="shuffle" size={18} />
-                </button>
-
-                <button
-                  className={`icon-btn nav-btn-next`}
-                  style={{ width: 52, height: 52 }}
-                  onClick={() => goTo(safeDispIdx + 1)}
-                  disabled={safeDispIdx === displayCards.length - 1}
-                >
-                  <Icon name="right" size={22} />
-                </button>
+              <div className="nav">
+                <button className="nav-btn" onClick={()=>goTo(safe-1)} disabled={safe===0}><LeftIco s={18}/></button>
+                <span className="nav-counter">{safe+1} / {displayed.length}</span>
+                <button className="nav-btn" onClick={shuffle} title="シャッフル" style={{width:38,height:38}}><ShuffleIco s={15}/></button>
+                <button className="nav-btn nav-primary" onClick={()=>goTo(safe+1)} disabled={safe===displayed.length-1}><RightIco s={18}/></button>
               </div>
             </>
           )}
@@ -608,7 +311,7 @@ function App() {
   );
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
 </body>
 </html>
