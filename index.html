@@ -20,11 +20,21 @@
     .header .fname { font-size: 11px; color: #999; margin-top: 1px; }
 
     .card { background: #fff; border: 1px solid #e0dfd8; border-radius: 16px; padding: 24px; margin-bottom: 10px; }
+
+    /* stats row */
+    .stats-row { display: flex; gap: 8px; margin-bottom: 10px; }
+    .stat-box { flex: 1; background: #fff; border: 1px solid #e0dfd8; border-radius: 12px; padding: 12px 14px; }
+    .stat-num { font-size: 22px; font-weight: 600; color: #1a1a1a; line-height: 1; margin-bottom: 3px; }
+    .stat-num.red   { color: #e04040; }
+    .stat-num.amber { color: #d97706; }
+    .stat-num.green { color: #16a34a; }
+    .stat-label { font-size: 11px; color: #999; }
+
     .prog-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
     .prog-label { font-size: 12px; color: #999; }
     .prog-count { font-size: 12px; color: #555; font-weight: 500; }
     .prog-bar { height: 3px; background: #eceae3; border-radius: 99px; overflow: hidden; }
-    .prog-fill { height: 100%; background: #1a1a1a; border-radius: 99px; transition: width 0.5s ease; }
+    .prog-fill { height: 100%; border-radius: 99px; transition: width 0.5s ease; }
 
     /* flip */
     .perspective { perspective: 1200px; }
@@ -38,20 +48,30 @@
     .face-back  .face-label { color: #444; }
     .face-text { font-size: 28px; font-weight: 600; text-align: center; line-height: 1.4; word-break: break-word; }
     .face-front .face-text { color: #1a1a1a; }
-    .face-back  .face-text { color: #fff; margin-bottom: 64px; }
+    .face-back  .face-text { color: #fff; margin-bottom: 80px; }
     .face-hint { position: absolute; bottom: 16px; font-size: 11px; color: #ccc; animation: pu 2.5s ease-in-out infinite; }
     @keyframes pu { 0%,100%{opacity:.35} 50%{opacity:.85} }
-    .badge-learned { position: absolute; top: 14px; right: 16px; display: flex; align-items: center; gap: 4px; font-size: 11px; color: #666; background: #f3f3ee; border: 1px solid #e0dfd8; border-radius: 6px; padding: 2px 8px; }
 
-    /* answer buttons */
-    .answer-btns { position: absolute; bottom: 18px; left: 0; right: 0; display: flex; justify-content: center; gap: 10px; padding: 0 24px; }
-    .ans-btn { flex: 1; max-width: 160px; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid; font-family: inherit; transition: background 0.12s; }
-    .ans-btn-no  { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.14); color: #888; }
-    .ans-btn-no:hover  { background: rgba(255,255,255,0.12); color: #bbb; }
-    .ans-btn-yes { background: #fff; border-color: #fff; color: #1a1a1a; }
-    .ans-btn-yes:hover { background: #e6e6e6; }
+    /* review badge on front */
+    .review-badge { position: absolute; top: 14px; right: 16px; font-size: 11px; border-radius: 6px; padding: 2px 8px; font-weight: 500; }
+    .badge-due    { background: #fef2f2; border: 1px solid #fca5a5; color: #dc2626; }
+    .badge-soon   { background: #fffbeb; border: 1px solid #fcd34d; color: #d97706; }
+    .badge-later  { background: #f0fdf4; border: 1px solid #86efac; color: #16a34a; }
+    .badge-new    { background: #f5f3ff; border: 1px solid #c4b5fd; color: #7c3aed; }
 
-    /* card swap fade */
+    /* answer buttons — 3 levels */
+    .answer-btns { position: absolute; bottom: 16px; left: 0; right: 0; display: flex; justify-content: center; gap: 8px; padding: 0 20px; }
+    .ans-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 9px 6px; border-radius: 10px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid; font-family: inherit; transition: background 0.12s; line-height: 1.3; }
+    .ans-sub { font-size: 10px; opacity: 0.7; font-weight: 400; }
+    .ans-again { background: rgba(220,38,38,0.12); border-color: rgba(220,38,38,0.25); color: #ef4444; }
+    .ans-again:hover { background: rgba(220,38,38,0.2); }
+    .ans-hard  { background: rgba(217,119,6,0.12); border-color: rgba(217,119,6,0.25); color: #d97706; }
+    .ans-hard:hover  { background: rgba(217,119,6,0.2); }
+    .ans-good  { background: #fff; border-color: #ddd; color: #1a1a1a; }
+    .ans-good:hover  { background: #f0f0f0; }
+    .ans-easy  { background: rgba(22,163,74,0.12); border-color: rgba(22,163,74,0.25); color: #16a34a; }
+    .ans-easy:hover  { background: rgba(22,163,74,0.2); }
+
     @keyframes fadeIn { from{opacity:0} to{opacity:1} }
     .card-fadein { animation: fadeIn 0.18s ease-out; }
 
@@ -72,6 +92,7 @@
     .t-outline { background: #fff; border-color: #e0dfd8; color: #555; }
     .t-outline:hover { border-color: #bbb; color: #1a1a1a; }
     .t-active  { background: #1a1a1a; border-color: #1a1a1a; color: #fff; }
+    .t-red     { background: #fef2f2; border-color: #fca5a5; color: #dc2626; }
 
     .upload-zone { border: 1.5px dashed #d5d3cc; border-radius: 12px; background: #fafaf7; padding: 32px 20px; text-align: center; cursor: pointer; transition: all 0.18s; display: block; }
     .upload-zone:hover { background: #f3f3ee; border-color: #999; }
@@ -80,6 +101,9 @@
     .upload-sub { font-size: 12px; color: #999; line-height: 1.7; }
     .done-icon { width: 50px; height: 50px; border-radius: 50%; background: #f3f3ee; border: 1px solid #e0dfd8; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; color: #666; }
     .error-box { border-left: 3px solid #e04040; background: #fff5f5; border-radius: 0 8px 8px 0; padding: 10px 14px; font-size: 13px; color: #c03030; margin-bottom: 14px; }
+    .all-done-session { text-align: center; padding: 48px 32px; }
+    .all-done-session h2 { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
+    .all-done-session p  { font-size: 13px; color: #999; margin-bottom: 6px; }
   </style>
 </head>
 <body>
@@ -87,20 +111,20 @@
 <script type="text/babel">
 const { useState, useRef, useEffect, useCallback } = React;
 
+// ── SVG icons ──────────────────────────────────────────────────────────
 const Svg = ({ children, size=15 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0}}>{children}</svg>
 );
 const CheckIco   = ({s=15}) => <Svg size={s}><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></Svg>;
-const XCIco      = ({s=15}) => <Svg size={s}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></Svg>;
 const LeftIco    = ({s=15}) => <Svg size={s}><path d="m15 18-6-6 6-6"/></Svg>;
 const RightIco   = ({s=15}) => <Svg size={s}><path d="m9 18 6-6-6-6"/></Svg>;
 const ShuffleIco = ({s=15}) => <Svg size={s}><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/><path d="m18 2 4 4-4 4"/><path d="M2 6h1.9c1.5 0 2.8.8 3.6 2.1"/><path d="m22 18-4 4v-8z"/></Svg>;
 const UploadIco  = ({s=15}) => <Svg size={s}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></Svg>;
 const SaveIco    = ({s=15}) => <Svg size={s}><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></Svg>;
-const FilterIco  = ({s=15}) => <Svg size={s}><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></Svg>;
 const ResetIco   = ({s=15}) => <Svg size={s}><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></Svg>;
 const DlIco      = ({s=15}) => <Svg size={s}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></Svg>;
 const FileIco    = ({s=15}) => <Svg size={s}><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></Svg>;
+const CalIco     = ({s=15}) => <Svg size={s}><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></Svg>;
 
 const sto = {
   get: (k,d) => { try{const v=localStorage.getItem(k);return v!==null?JSON.parse(v):d;}catch{return d;} },
@@ -108,89 +132,180 @@ const sto = {
   del: (k)   => { try{localStorage.removeItem(k);}catch{} },
 };
 
+// ── SM-2 spaced repetition ─────────────────────────────────────────────
+// rating: 0=また覚えてない 1=難しい 2=普通 3=簡単
+// returns updated SRS fields
+function sm2(card, rating) {
+  const today = todayStr();
+  let { interval=0, easeFactor=2.5, repetitions=0 } = card;
+
+  if (rating === 0) {
+    // 完全忘却: リセット、翌日
+    repetitions = 0;
+    interval = 1;
+    easeFactor = Math.max(1.3, easeFactor - 0.2);
+  } else if (rating === 1) {
+    // 難しい: interval短め
+    repetitions = Math.max(0, repetitions - 1);
+    interval = Math.max(1, Math.round(interval * 1.2));
+    easeFactor = Math.max(1.3, easeFactor - 0.15);
+  } else {
+    // 普通(2)・簡単(3)
+    if (repetitions === 0) interval = 1;
+    else if (repetitions === 1) interval = 3;
+    else interval = Math.round(interval * easeFactor);
+    repetitions += 1;
+    if (rating === 3) {
+      easeFactor = Math.min(3.0, easeFactor + 0.1);
+      interval = Math.round(interval * 1.3);
+    }
+  }
+
+  // nextReview = today + interval days
+  const next = new Date();
+  next.setDate(next.getDate() + interval);
+  const nextReview = next.toISOString().slice(0,10);
+
+  return { interval, easeFactor, repetitions, lastReview: today, nextReview, learned: rating >= 2 };
+}
+
+function todayStr() {
+  return new Date().toISOString().slice(0,10);
+}
+
+function daysUntil(dateStr) {
+  if (!dateStr) return null;
+  const diff = new Date(dateStr) - new Date(todayStr());
+  return Math.round(diff / 86400000);
+}
+
+function reviewLabel(card) {
+  if (!card.nextReview) return { text: '新規', cls: 'badge-new' };
+  const d = daysUntil(card.nextReview);
+  if (d <= 0) return { text: '今日', cls: 'badge-due' };
+  if (d === 1) return { text: '明日', cls: 'badge-soon' };
+  return { text: `${d}日後`, cls: 'badge-later' };
+}
+
+// Preview next interval for each button
+function previewInterval(card, rating) {
+  const r = sm2(card, rating);
+  const d = daysUntil(r.nextReview);
+  if (d <= 0) return '今日';
+  if (d === 1) return '明日';
+  return `${d}日後`;
+}
+
+// ── CSV helpers ───────────────────────────────────────────────────────
+function parseCSV(text) {
+  const lines=text.split('\n'), result=[];
+  for(let i=0;i<lines.length;i++){
+    const line=lines[i].trim(); if(!line) continue;
+    const vals=[]; let cur='', inQ=false;
+    for(const ch of line){ if(ch==='"')inQ=!inQ; else if(ch===','&&!inQ){vals.push(cur);cur='';}else cur+=ch; }
+    vals.push(cur);
+    if(vals.length>=2){
+      const front=vals[0].replace(/^"|"$/g,'').trim();
+      const back =vals[1].replace(/^"|"$/g,'').trim();
+      // col3: learned legacy, col4: interval, col5: easeFactor, col6: repetitions, col7: nextReview
+      let learned=false, interval=0, easeFactor=2.5, repetitions=0, nextReview=null, lastReview=null;
+      if(vals[2]){const st=vals[2].replace(/^"|"$/g,'').trim().toLowerCase();learned=st==='1'||st==='true'||st==='済';}
+      if(vals[3]){interval=parseFloat(vals[3])||0;}
+      if(vals[4]){easeFactor=parseFloat(vals[4])||2.5;}
+      if(vals[5]){repetitions=parseInt(vals[5])||0;}
+      if(vals[6]){nextReview=vals[6].replace(/^"|"$/g,'').trim()||null;}
+      if(vals[7]){lastReview=vals[7].replace(/^"|"$/g,'').trim()||null;}
+      if(front&&back) result.push({front,back,learned,interval,easeFactor,repetitions,nextReview,lastReview,id:i});
+    }
+  }
+  if(result.length&&(result[0].front.includes('表面')||result[0].front==='front'||result[0].front==='問題')) result.shift();
+  return result;
+}
+
+function toCSV(cards) {
+  const esc=s=>(s.includes(',')||s.includes('"')||s.includes('\n'))?`"${s.replace(/"/g,'""')}"`:s;
+  let csv="表面,裏面,状態,interval,easeFactor,repetitions,nextReview,lastReview\n";
+  cards.forEach(c=>{
+    csv+=`${esc(c.front)},${esc(c.back)},${c.learned?1:0},${c.interval||0},${(c.easeFactor||2.5).toFixed(2)},${c.repetitions||0},${c.nextReview||''},${c.lastReview||''}\n`;
+  });
+  return csv;
+}
+
+// ── App ───────────────────────────────────────────────────────────────
 function App() {
-  const [cards,    setCards]    = useState(() => sto.get('fc5_cards',[]));
-  const [idx,      setIdx]      = useState(() => sto.get('fc5_idx',0));
+  const [cards,    setCards]    = useState(() => sto.get('fc6_cards',[]));
+  const [idx,      setIdx]      = useState(() => sto.get('fc6_idx',0));
   const [flipped,  setFlipped]  = useState(false);
-  const [fname,    setFname]    = useState(() => sto.get('fc5_fname',''));
-  const [filterOn, setFilterOn] = useState(() => sto.get('fc5_filter',false));
+  const [fname,    setFname]    = useState(() => sto.get('fc6_fname',''));
+  const [mode,     setMode]     = useState('all'); // 'all' | 'due' | 'new'
   const [error,    setError]    = useState('');
   const [animKey,  setAnimKey]  = useState(0);
   const fileRef = useRef(null);
 
-  useEffect(()=>{ sto.set('fc5_cards',cards);    },[cards]);
-  useEffect(()=>{ sto.set('fc5_idx',idx);        },[idx]);
-  useEffect(()=>{ sto.set('fc5_fname',fname);    },[fname]);
-  useEffect(()=>{ sto.set('fc5_filter',filterOn);},[filterOn]);
+  useEffect(()=>{ sto.set('fc6_cards',cards);  },[cards]);
+  useEffect(()=>{ sto.set('fc6_idx',idx);      },[idx]);
+  useEffect(()=>{ sto.set('fc6_fname',fname);  },[fname]);
 
-  const displayed = filterOn ? cards.filter(c=>!c.learned) : cards;
+  const today = todayStr();
+
+  // filter modes
+  const dueCards  = cards.filter(c => !c.nextReview || c.nextReview <= today);
+  const newCards  = cards.filter(c => !c.nextReview);
+
+  const displayed = mode === 'due' ? dueCards
+                  : mode === 'new' ? newCards
+                  : cards;
+
   const curId   = cards[idx]?.id;
   const dispIdx = displayed.findIndex(c=>c.id===curId);
   const safe    = dispIdx >= 0 ? dispIdx : 0;
+  const cur     = cards[idx];
 
-  // 元の goTo: フリップ戻し → 130ms待機 → カード差し替え＋fadeIn
+  // navigate
   const goTo = useCallback((nd) => {
     if (nd < 0 || nd >= displayed.length) return;
     setFlipped(false);
     const ti = cards.findIndex(c=>c.id===displayed[nd].id);
-    setTimeout(() => { setIdx(ti); setAnimKey(k=>k+1); }, 130);
+    setTimeout(()=>{ setIdx(ti); setAnimKey(k=>k+1); }, 130);
   }, [displayed, cards]);
 
-  // 「覚えた」: learned=true にして同じアニメで次へ
-  const markLearned = (e) => {
-    e.stopPropagation();
-    if (!cards[idx]) return;
-    const updated = cards.map((c,i) => i===idx ? {...c, learned:true} : c);
+  // answer with rating 0-3
+  const answer = (rating) => {
+    if (!cur) return;
+    const srs = sm2(cur, rating);
+    const updated = cards.map((c,i) => i===idx ? {...c, ...srs} : c);
     setCards(updated);
 
-    const nextCard = filterOn
-      ? (updated.find((c,i)=>i>idx&&!c.learned) || updated.find(c=>!c.learned))
-      : displayed[safe+1];
+    // find next in current display (after update, due/new lists may shrink)
+    const nextDisp = (() => {
+      const newDisplayed = mode === 'due' ? updated.filter(c=>!c.nextReview||c.nextReview<=today)
+                         : mode === 'new' ? updated.filter(c=>!c.nextReview)
+                         : updated;
+      // try next index, else first that's not the current card
+      const afterUpdate = newDisplayed.filter(c=>c.id !== cur.id);
+      // find one after current position
+      const laterIdx = newDisplayed.findIndex((c,i) => i > safe && c.id !== cur.id);
+      if (laterIdx >= 0) return newDisplayed[laterIdx];
+      if (afterUpdate.length > 0) return afterUpdate[0];
+      return null;
+    })();
 
-    // 同じ: フリップ戻し → 130ms → 差し替え
     setFlipped(false);
-    if (nextCard) {
-      const ti = updated.findIndex(c=>c.id===nextCard.id);
-      setTimeout(() => { setIdx(ti); setAnimKey(k=>k+1); }, 130);
-    }
-  };
-
-  // 「まだ覚えてない」: 状態変更なし、でも同じアニメで次へ
-  const markNotLearned = (e) => {
-    e.stopPropagation();
-    setFlipped(false);
-    if (safe + 1 < displayed.length) {
-      const ti = cards.findIndex(c=>c.id===displayed[safe+1].id);
-      setTimeout(() => { setIdx(ti); setAnimKey(k=>k+1); }, 130);
+    if (nextDisp) {
+      const ti = updated.findIndex(c=>c.id===nextDisp.id);
+      setTimeout(()=>{ setIdx(ti); setAnimKey(k=>k+1); }, 130);
+    } else {
+      setTimeout(()=>{ setAnimKey(k=>k+1); }, 130);
     }
   };
 
   const shuffle = () => {
     setFlipped(false);
-    setTimeout(() => {
+    setTimeout(()=>{
       const s=[...cards];
       for(let i=s.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[s[i],s[j]]=[s[j],s[i]];}
       setCards(s); setIdx(0); setAnimKey(k=>k+1);
     }, 130);
-  };
-
-  const parseCSV = (text) => {
-    const lines=text.split('\n'), result=[];
-    for(let i=0;i<lines.length;i++){
-      const line=lines[i].trim(); if(!line) continue;
-      const vals=[]; let cur='', inQ=false;
-      for(const ch of line){ if(ch==='"')inQ=!inQ; else if(ch===','&&!inQ){vals.push(cur);cur='';}else cur+=ch; }
-      vals.push(cur);
-      if(vals.length>=2){
-        const front=vals[0].replace(/^"|"$/g,'').trim();
-        const back =vals[1].replace(/^"|"$/g,'').trim();
-        let learned=false;
-        if(vals[2]){const st=vals[2].replace(/^"|"$/g,'').trim().toLowerCase();learned=st==='1'||st==='true'||st==='済';}
-        if(front&&back) result.push({front,back,learned,id:i});
-      }
-    }
-    if(result.length&&(result[0].front.includes('表面')||result[0].front==='front'||result[0].front==='問題')) result.shift();
-    return result;
   };
 
   const handleFile = (e) => {
@@ -200,7 +315,7 @@ function App() {
     const reader=new FileReader();
     reader.onload=ev=>{
       const parsed=parseCSV(ev.target.result);
-      if(parsed.length){setCards(parsed);setIdx(0);setFlipped(false);setFilterOn(false);setAnimKey(k=>k+1);}
+      if(parsed.length){setCards(parsed);setIdx(0);setFlipped(false);setMode('all');setAnimKey(k=>k+1);}
       else{setError('有効なデータが見つかりませんでした。');setFname('');if(fileRef.current)fileRef.current.value='';}
     };
     reader.onerror=()=>setError('ファイル読み込みエラー。');
@@ -213,24 +328,26 @@ function App() {
     const a=document.createElement('a');a.href=url;a.download=name;
     document.body.appendChild(a);a.click();document.body.removeChild(a);
   };
-  const downloadSample=()=>dlCSV("表面（問題）,裏面（答え）,状態(0=未/1=済)\nApple,りんご,0\nDog,犬,1\nCat,猫,0\nWater,水,0\nBook,本,1",'sample_flashcards.csv');
-  const saveProgress=()=>{
-    if(!cards.length)return;
-    const esc=s=>(s.includes(',')||s.includes('"')||s.includes('\n'))?`"${s.replace(/"/g,'""')}"`:s;
-    let csv="表面（問題）,裏面（答え）,状態(0=未/1=済)\n";
-    cards.forEach(c=>{csv+=`${esc(c.front)},${esc(c.back)},${c.learned?1:0}\n`;});
-    dlCSV(csv,`${(fname||'flashcards').replace('.csv','').replace('_progress','')}_progress.csv`);
-  };
+  const downloadSample=()=>dlCSV("表面,裏面\nApple,りんご\nDog,犬\nCat,猫\nWater,水\nBook,本",'sample_flashcards.csv');
+  const saveProgress=()=>{ if(!cards.length)return; dlCSV(toCSV(cards),`${(fname||'flashcards').replace('.csv','').replace('_progress','')}_progress.csv`); };
   const reset=()=>{
-    setCards([]);setFname('');setIdx(0);setFlipped(false);setError('');setFilterOn(false);
-    ['fc5_cards','fc5_idx','fc5_fname','fc5_filter'].forEach(k=>sto.del(k));
+    setCards([]);setFname('');setIdx(0);setFlipped(false);setError('');setMode('all');
+    ['fc6_cards','fc6_idx','fc6_fname'].forEach(k=>sto.del(k));
     if(fileRef.current)fileRef.current.value='';
   };
 
-  const learnedCount=cards.filter(c=>c.learned).length;
-  const pct=cards.length>0?Math.round(learnedCount/cards.length*100):0;
-  const allDone=filterOn&&displayed.length===0&&cards.length>0;
-  const cur=cards[idx];
+  // stats
+  const masteredCount = cards.filter(c=>c.repetitions>=3&&c.learned).length;
+  const reviewedToday = cards.filter(c=>c.lastReview===today).length;
+
+  const sessionDone = displayed.length > 0 && (() => {
+    // all cards in current display have been reviewed today or have future review date
+    if (mode === 'due') return dueCards.length === 0;
+    if (mode === 'new') return newCards.length === 0;
+    return false;
+  })();
+
+  const rl = cur ? reviewLabel(cur) : null;
 
   return (
     <div className="wrap">
@@ -260,62 +377,101 @@ function App() {
         </div>
       ) : (
         <>
+          {/* toolbar */}
           <div className="toolbar">
             <button onClick={reset} className="tbtn t-ghost"><ResetIco s={13}/> 終了</button>
-            <div style={{display:'flex',gap:8}}>
-              <button onClick={()=>{setFilterOn(f=>!f);setFlipped(false);}} className={`tbtn ${filterOn?'t-active':'t-outline'}`}>
-                <FilterIco s={13}/> 未学習のみ
+            <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+              <button onClick={()=>{setMode('all');setFlipped(false);goTo(0);}} className={`tbtn ${mode==='all'?'t-active':'t-outline'}`}>すべて</button>
+              <button onClick={()=>{setMode('due');setFlipped(false);}} className={`tbtn ${mode==='due'?'t-red':'t-outline'}`}>
+                <CalIco s={12}/> 今日の復習 {dueCards.length>0&&<span style={{marginLeft:2,fontWeight:700}}>({dueCards.length})</span>}
               </button>
-              <button onClick={saveProgress} className="tbtn t-outline"><SaveIco s={13}/> 進捗を保存</button>
+              <button onClick={()=>{setMode('new');setFlipped(false);}} className={`tbtn ${mode==='new'?'t-active':'t-outline'}`}>
+                新規 {newCards.length>0&&<span style={{marginLeft:2}}>({newCards.length})</span>}
+              </button>
+              <button onClick={saveProgress} className="tbtn t-outline"><SaveIco s={13}/> 保存</button>
             </div>
           </div>
 
-          <div className="card" style={{padding:'16px 20px',marginBottom:10}}>
-            <div className="prog-row">
-              <span className="prog-label">学習進捗</span>
-              <span className="prog-count">{learnedCount} / {cards.length} 覚えた　{pct}%</span>
+          {/* stats */}
+          <div className="stats-row">
+            <div className="stat-box">
+              <div className={`stat-num ${dueCards.length>0?'red':''}`}>{dueCards.length}</div>
+              <div className="stat-label">今日の復習</div>
             </div>
-            <div className="prog-bar"><div className="prog-fill" style={{width:`${pct}%`}}/></div>
+            <div className="stat-box">
+              <div className="stat-num amber">{newCards.length}</div>
+              <div className="stat-label">未学習</div>
+            </div>
+            <div className="stat-box">
+              <div className="stat-num">{reviewedToday}</div>
+              <div className="stat-label">今日学習済</div>
+            </div>
+            <div className="stat-box">
+              <div className="stat-num green">{masteredCount}</div>
+              <div className="stat-label">習得済み</div>
+            </div>
           </div>
 
-          {allDone ? (
-            <div className="card" style={{textAlign:'center',padding:'48px 32px'}}>
-              <div className="done-icon"><CheckIco s={24}/></div>
-              <div style={{fontSize:16,fontWeight:600,marginBottom:8}}>すべて覚えました！</div>
-              <div style={{fontSize:13,color:'#999',marginBottom:20}}>未学習のカードはありません</div>
-              <button onClick={()=>{setFilterOn(false);setFlipped(false);}} className="tbtn t-outline" style={{margin:'0 auto',padding:'8px 20px'}}>
-                全カードを表示する
+          {/* session done state */}
+          {sessionDone ? (
+            <div className="card all-done-session">
+              <div className="done-icon" style={{marginBottom:14}}><CheckIco s={24}/></div>
+              <h2>
+                {mode==='due' ? '今日の復習が終わりました！' : '新規カードがありません'}
+              </h2>
+              <p>次の復習カードは明日以降に表示されます</p>
+              <p style={{fontSize:12,color:'#bbb',marginBottom:20}}>今日学習済み: {reviewedToday}枚</p>
+              <button onClick={()=>setMode('all')} className="tbtn t-outline" style={{margin:'0 auto'}}>
+                全カードを見る
               </button>
+            </div>
+          ) : displayed.length === 0 ? (
+            <div className="card all-done-session">
+              <p style={{color:'#999'}}>このフィルターに該当するカードがありません</p>
             </div>
           ) : (
             <>
               <div style={{textAlign:'center',marginBottom:8}}>
-                <span style={{fontSize:12,color:'#bbb'}}>
-                  {safe+1} / {displayed.length}
-                  {filterOn&&<span style={{marginLeft:4}}>（未学習）</span>}
-                </span>
+                <span style={{fontSize:12,color:'#bbb'}}>{safe+1} / {displayed.length}</span>
               </div>
 
-              <div className="perspective" style={{width:'100%',height:290,marginBottom:10}}
+              <div className="perspective" style={{width:'100%',height:310,marginBottom:10}}
                 onClick={()=>setFlipped(f=>!f)}>
                 <div key={animKey} className={`card-inner card-fadein${flipped?' flipped':''}`}>
 
+                  {/* Front */}
                   <div className="card-face face-front">
                     <span className="face-label">QUESTION</span>
-                    {cur?.learned&&<div className="badge-learned"><CheckIco s={11}/> 覚えた</div>}
+                    {rl && <span className={`review-badge ${rl.cls}`}>{rl.text}</span>}
                     <div className="face-text" style={{fontSize:cur?.front?.length>18?20:28}}>{cur?.front}</div>
-                    <span className="face-hint">タップして裏返す</span>
+                    {cur?.interval > 0 && (
+                      <div style={{position:'absolute',bottom:14,fontSize:11,color:'#ccc'}}>
+                        前回の間隔: {cur.interval}日
+                      </div>
+                    )}
+                    <span className="face-hint" style={{bottom: cur?.interval>0?30:16}}>タップして裏返す</span>
                   </div>
 
+                  {/* Back */}
                   <div className="card-face face-back">
                     <span className="face-label">ANSWER</span>
                     <div className="face-text" style={{fontSize:cur?.back?.length>18?20:28}}>{cur?.back}</div>
                     <div className="answer-btns">
-                      <button onClick={markNotLearned} className="ans-btn ans-btn-no">
-                        <XCIco s={13}/> まだ覚えてない
+                      <button onClick={e=>{e.stopPropagation();answer(0);}} className="ans-btn ans-again">
+                        <span>もう一度</span>
+                        <span className="ans-sub">{cur?previewInterval(cur,0):''}</span>
                       </button>
-                      <button onClick={markLearned} className="ans-btn ans-btn-yes">
-                        <CheckIco s={13}/> 覚えた！
+                      <button onClick={e=>{e.stopPropagation();answer(1);}} className="ans-btn ans-hard">
+                        <span>難しい</span>
+                        <span className="ans-sub">{cur?previewInterval(cur,1):''}</span>
+                      </button>
+                      <button onClick={e=>{e.stopPropagation();answer(2);}} className="ans-btn ans-good">
+                        <span>覚えた</span>
+                        <span className="ans-sub">{cur?previewInterval(cur,2):''}</span>
+                      </button>
+                      <button onClick={e=>{e.stopPropagation();answer(3);}} className="ans-btn ans-easy">
+                        <span>完璧</span>
+                        <span className="ans-sub">{cur?previewInterval(cur,3):''}</span>
                       </button>
                     </div>
                   </div>
