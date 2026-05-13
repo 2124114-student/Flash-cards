@@ -11,45 +11,86 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Noto Sans JP', -apple-system, sans-serif;
-      background: #f3f3ee;
-      color: #1a1a1a;
-      min-height: 100vh;
-      font-size: 14px;
-    }
+    body { font-family: 'Noto Sans JP', -apple-system, sans-serif; background: #f3f3ee; color: #1a1a1a; min-height: 100vh; font-size: 14px; }
     .wrap { max-width: 540px; margin: 0 auto; padding: 40px 20px 60px; }
+
+    /* header */
     .header { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
     .header-icon { width: 32px; height: 32px; border-radius: 8px; background: #fff; border: 1px solid #e0dfd8; display: flex; align-items: center; justify-content: center; color: #666; }
     .header h1 { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
     .header .fname { font-size: 11px; color: #999; margin-top: 1px; }
+
+    /* card */
     .card { background: #fff; border: 1px solid #e0dfd8; border-radius: 16px; padding: 24px; margin-bottom: 10px; }
     .prog-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
     .prog-label { font-size: 12px; color: #999; }
     .prog-count { font-size: 12px; color: #555; font-weight: 500; }
     .prog-bar { height: 3px; background: #eceae3; border-radius: 99px; overflow: hidden; }
     .prog-fill { height: 100%; background: #1a1a1a; border-radius: 99px; transition: width 0.5s ease; }
-    /* flip */
-    .perspective { perspective: 1200px; }
-    .card-inner { transform-style: preserve-3d; transition: transform 0.5s cubic-bezier(0.4,0,0.2,1); position: relative; width: 100%; height: 100%; }
-    .card-inner.flipped { transform: rotateY(180deg); }
-    .card-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px 28px; }
+
+    /* ── CARD FLIP ── */
+    .card-viewport {
+      width: 100%; height: 290px;
+      position: relative;
+      margin-bottom: 10px;
+      /* clip the slide-in/out */
+      overflow: hidden;
+      border-radius: 16px;
+    }
+    /* The sliding+flipping container */
+    .card-slider {
+      position: absolute; inset: 0;
+      /* slide transitions */
+      transition: transform 0.32s cubic-bezier(0.4,0,0.2,1), opacity 0.32s ease;
+    }
+    .card-slider.slide-exit-left  { transform: translateX(-55px); opacity: 0; pointer-events: none; }
+    .card-slider.slide-exit-right { transform: translateX( 55px); opacity: 0; pointer-events: none; }
+    .card-slider.slide-enter-right { animation: enterFromRight 0.32s cubic-bezier(0,0,0.2,1) forwards; }
+    .card-slider.slide-enter-left  { animation: enterFromLeft  0.32s cubic-bezier(0,0,0.2,1) forwards; }
+    @keyframes enterFromRight { from{transform:translateX(55px);opacity:0} to{transform:translateX(0);opacity:1} }
+    @keyframes enterFromLeft  { from{transform:translateX(-55px);opacity:0} to{transform:translateX(0);opacity:1} }
+
+    /* 3-D flip inside the slider */
+    .flip-inner {
+      width: 100%; height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.42s cubic-bezier(0.4,0,0.2,1);
+      cursor: pointer;
+    }
+    .flip-inner.is-flipped { transform: rotateY(180deg); }
+
+    .card-face {
+      position: absolute; inset: 0;
+      backface-visibility: hidden; -webkit-backface-visibility: hidden;
+      border-radius: 16px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 32px 28px;
+    }
     .face-front { background: #fff; border: 1px solid #e0dfd8; }
-    .face-back  { background: #1a1a1a; border: 1px solid #1a1a1a; transform: rotateY(180deg); }
-    .face-label { font-size: 10px; letter-spacing: 0.1em; position: absolute; top: 16px; left: 20px; color: #ccc; }
-    .face-back .face-label { color: #444; }
-    .face-text  { font-size: 28px; font-weight: 600; text-align: center; line-height: 1.4; word-break: break-word; }
+    .face-back  { background: #1a1a1a; border: 1px solid #222; transform: rotateY(180deg); }
+
+    .face-label { font-size: 10px; letter-spacing: 0.1em; position: absolute; top: 16px; left: 20px; }
+    .face-front .face-label { color: #ccc; }
+    .face-back  .face-label { color: #444; }
+
+    .face-text { font-size: 28px; font-weight: 600; text-align: center; line-height: 1.4; word-break: break-word; }
     .face-front .face-text { color: #1a1a1a; }
-    .face-back  .face-text { color: #fff; margin-bottom: 52px; }
-    .face-hint  { position: absolute; bottom: 16px; font-size: 11px; color: #ccc; animation: pu 2.5s ease-in-out infinite; }
-    @keyframes pu { 0%,100%{opacity:.35} 50%{opacity:.8} }
+    .face-back  .face-text { color: #fff; margin-bottom: 60px; }
+
+    .face-hint { position: absolute; bottom: 16px; font-size: 11px; color: #ccc; animation: pu 2.5s ease-in-out infinite; }
+    @keyframes pu { 0%,100%{opacity:.35} 50%{opacity:.85} }
+
     .badge-learned { position: absolute; top: 14px; right: 16px; display: flex; align-items: center; gap: 4px; font-size: 11px; color: #666; background: #f3f3ee; border: 1px solid #e0dfd8; border-radius: 6px; padding: 2px 8px; }
+
+    /* answer buttons on back face */
     .answer-btns { position: absolute; bottom: 18px; left: 0; right: 0; display: flex; justify-content: center; gap: 10px; padding: 0 24px; }
-    .ans-btn { flex: 1; max-width: 160px; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; border: 1px solid; font-family: inherit; }
-    .ans-btn-no  { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.12); color: #888; }
-    .ans-btn-no:hover  { background: rgba(255,255,255,0.11); color: #ccc; border-color: rgba(255,255,255,0.2); }
+    .ans-btn { flex: 1; max-width: 160px; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid; font-family: inherit; transition: background 0.12s, opacity 0.12s; }
+    .ans-btn-no  { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.14); color: #888; }
+    .ans-btn-no:hover  { background: rgba(255,255,255,0.12); color: #bbb; }
     .ans-btn-yes { background: #fff; border-color: #fff; color: #1a1a1a; }
-    .ans-btn-yes:hover { background: #e8e8e8; }
+    .ans-btn-yes:hover { background: #e6e6e6; }
+
     /* nav */
     .nav { display: flex; align-items: center; justify-content: center; gap: 8px; }
     .nav-btn { width: 42px; height: 42px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; border: 1px solid #e0dfd8; background: #fff; color: #555; transition: all 0.15s; font-family: inherit; }
@@ -59,24 +100,25 @@
     .nav-primary { background: #1a1a1a; border-color: #1a1a1a; color: #fff; }
     .nav-primary:hover:not(:disabled) { background: #2d2d2d; }
     .nav-counter { font-size: 12px; color: #999; min-width: 56px; text-align: center; }
+
     /* toolbar */
     .toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
     .tbtn { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 7px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid; transition: all 0.15s; font-family: inherit; }
-    .t-ghost  { background: transparent; border-color: transparent; color: #999; }
+    .t-ghost   { background: transparent; border-color: transparent; color: #999; }
     .t-ghost:hover { color: #555; background: #eceae3; border-color: #eceae3; }
     .t-outline { background: #fff; border-color: #e0dfd8; color: #555; }
     .t-outline:hover { border-color: #bbb; color: #1a1a1a; }
-    .t-active { background: #1a1a1a; border-color: #1a1a1a; color: #fff; }
+    .t-active  { background: #1a1a1a; border-color: #1a1a1a; color: #fff; }
+
     /* upload */
     .upload-zone { border: 1.5px dashed #d5d3cc; border-radius: 12px; background: #fafaf7; padding: 32px 20px; text-align: center; cursor: pointer; transition: all 0.18s; display: block; }
     .upload-zone:hover { background: #f3f3ee; border-color: #999; }
     .upload-icon { width: 44px; height: 44px; border-radius: 10px; background: #f3f3ee; border: 1px solid #e0dfd8; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; color: #888; }
     .upload-title { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
     .upload-sub { font-size: 12px; color: #999; line-height: 1.7; }
+
     .done-icon { width: 50px; height: 50px; border-radius: 50%; background: #f3f3ee; border: 1px solid #e0dfd8; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; color: #666; }
     .error-box { border-left: 3px solid #e04040; background: #fff5f5; border-radius: 0 8px 8px 0; padding: 10px 14px; font-size: 13px; color: #c03030; margin-bottom: 14px; }
-    @keyframes fi { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
-    .anim { animation: fi 0.2s ease-out; }
   </style>
 </head>
 <body>
@@ -88,6 +130,7 @@ const Svg = ({ children, size=15 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0}}>{children}</svg>
 );
 const CheckIco   = ({s=15}) => <Svg size={s}><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></Svg>;
+const XCIco      = ({s=15}) => <Svg size={s}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></Svg>;
 const LeftIco    = ({s=15}) => <Svg size={s}><path d="m15 18-6-6 6-6"/></Svg>;
 const RightIco   = ({s=15}) => <Svg size={s}><path d="m9 18 6-6-6-6"/></Svg>;
 const ShuffleIco = ({s=15}) => <Svg size={s}><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/><path d="m18 2 4 4-4 4"/><path d="M2 6h1.9c1.5 0 2.8.8 3.6 2.1"/><path d="m22 18-4 4v-8z"/></Svg>;
@@ -104,88 +147,200 @@ const sto = {
   del: (k)   => { try{localStorage.removeItem(k);}catch{} },
 };
 
+// ── Slide+Flip Card component ──────────────────────────────────────────
+// Handles its own animation state so the parent just says "go to card X"
+function FlashCard({ card, isFlipped, onFlip, onAnswer, direction }) {
+  // direction: 'next' | 'prev' | null
+  // 'next' = slide left out, new card comes from right
+  // 'prev' = slide right out, new card comes from left
+  const [phase, setPhase] = useState('idle'); // idle | exiting | entering
+
+  // When card changes (direction != null), run exit→enter sequence
+  const prevCardRef = useRef(card);
+  const prevFlippedRef = useRef(isFlipped);
+  const [displayCard, setDisplayCard] = useState(card);
+  const [displayFlipped, setDisplayFlipped] = useState(isFlipped);
+
+  useEffect(() => {
+    if (card !== prevCardRef.current && direction) {
+      const exitClass = direction === 'next' ? 'slide-exit-left' : 'slide-exit-right';
+      const enterClass = direction === 'next' ? 'slide-enter-right' : 'slide-enter-left';
+
+      setPhase(exitClass);
+
+      const t1 = setTimeout(() => {
+        // swap content while invisible, reset flip
+        setDisplayCard(card);
+        setDisplayFlipped(false);
+        prevFlippedRef.current = false;
+        setPhase(enterClass);
+      }, 300); // must be <= exit transition duration
+
+      const t2 = setTimeout(() => {
+        setPhase('idle');
+      }, 300 + 320);
+
+      prevCardRef.current = card;
+      return () => { clearTimeout(t1); clearTimeout(t2); };
+    } else if (card !== prevCardRef.current) {
+      // no direction (shuffle etc) — instant swap
+      setDisplayCard(card);
+      setDisplayFlipped(false);
+      prevCardRef.current = card;
+    }
+  }, [card, direction]);
+
+  // keep flip state in sync when it changes without card change
+  useEffect(() => {
+    if (isFlipped !== prevFlippedRef.current && card === prevCardRef.current) {
+      setDisplayFlipped(isFlipped);
+      prevFlippedRef.current = isFlipped;
+    }
+  }, [isFlipped, card]);
+
+  const sliderClass = `card-slider ${phase !== 'idle' ? phase : ''}`;
+
+  return (
+    <div className="card-viewport">
+      <div className={sliderClass}>
+        <div
+          className={`flip-inner${displayFlipped ? ' is-flipped' : ''}`}
+          onClick={phase === 'idle' ? onFlip : undefined}
+        >
+          {/* Front */}
+          <div className="card-face face-front">
+            <span className="face-label">QUESTION</span>
+            {displayCard?.learned && (
+              <div className="badge-learned"><CheckIco s={11}/> 覚えた</div>
+            )}
+            <div className="face-text" style={{fontSize: displayCard?.front?.length > 18 ? 20 : 28}}>
+              {displayCard?.front}
+            </div>
+            <span className="face-hint">タップして裏返す</span>
+          </div>
+
+          {/* Back */}
+          <div className="card-face face-back">
+            <span className="face-label">ANSWER</span>
+            <div className="face-text" style={{fontSize: displayCard?.back?.length > 18 ? 20 : 28, color:'#fff'}}>
+              {displayCard?.back}
+            </div>
+            <div className="answer-btns">
+              <button
+                className="ans-btn ans-btn-no"
+                onClick={e => { e.stopPropagation(); if(phase==='idle') onAnswer(false); }}
+              >
+                <XCIco s={13}/> まだ覚えてない
+              </button>
+              <button
+                className="ans-btn ans-btn-yes"
+                onClick={e => { e.stopPropagation(); if(phase==='idle') onAnswer(true); }}
+              >
+                <CheckIco s={13}/> 覚えた！
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Main App ──────────────────────────────────────────────────────────
 function App() {
-  const [cards,   setCards]   = useState(() => sto.get('fc3_cards',[]));
-  const [idx,     setIdx]     = useState(() => sto.get('fc3_idx',0));
-  const [flipped, setFlipped] = useState(false);
-  const [fname,   setFname]   = useState(() => sto.get('fc3_fname',''));
-  const [filterOn,setFilterOn]= useState(() => sto.get('fc3_filter',false));
-  const [error,   setError]   = useState('');
-  const [animKey, setAnimKey] = useState(0);
+  const [cards,    setCards]    = useState(() => sto.get('fc4_cards',[]));
+  const [idx,      setIdx]      = useState(() => sto.get('fc4_idx',0));
+  const [flipped,  setFlipped]  = useState(false);
+  const [fname,    setFname]    = useState(() => sto.get('fc4_fname',''));
+  const [filterOn, setFilterOn] = useState(() => sto.get('fc4_filter',false));
+  const [error,    setError]    = useState('');
+  const [direction,setDirection]= useState(null); // 'next'|'prev'|null
   const fileRef = useRef(null);
 
-  useEffect(()=>{ sto.set('fc3_cards',cards);   },[cards]);
-  useEffect(()=>{ sto.set('fc3_idx',idx);       },[idx]);
-  useEffect(()=>{ sto.set('fc3_fname',fname);   },[fname]);
-  useEffect(()=>{ sto.set('fc3_filter',filterOn);},[filterOn]);
+  useEffect(()=>{ sto.set('fc4_cards',cards);    },[cards]);
+  useEffect(()=>{ sto.set('fc4_idx',idx);        },[idx]);
+  useEffect(()=>{ sto.set('fc4_fname',fname);    },[fname]);
+  useEffect(()=>{ sto.set('fc4_filter',filterOn);},[filterOn]);
 
   const displayed = filterOn ? cards.filter(c=>!c.learned) : cards;
-  const curId  = cards[idx]?.id;
-  const dispIdx= displayed.findIndex(c=>c.id===curId);
-  const safe   = dispIdx>=0 ? dispIdx : 0;
+  const curId     = cards[idx]?.id;
+  const dispIdx   = displayed.findIndex(c=>c.id===curId);
+  const safe      = dispIdx >= 0 ? dispIdx : 0;
 
-  const goTo = useCallback((nd) => {
-    if (nd<0||nd>=displayed.length) return;
-    setFlipped(false);
+  // Navigate to a display-list index with direction hint
+  const goTo = useCallback((nd, dir='next') => {
+    if (nd < 0 || nd >= displayed.length) return;
     const ti = cards.findIndex(c=>c.id===displayed[nd].id);
-    setTimeout(()=>{ setIdx(ti); setAnimKey(k=>k+1); },130);
-  },[displayed,cards]);
-
-  // 「覚えた」ボタン: learnedをtrueにして次へ進む
-  const markLearned = (e) => {
-    e.stopPropagation();
-    if (!cards[idx]) return;
-    const updated = cards.map((c,i)=>i===idx?{...c,learned:true}:c);
-    setCards(updated);
-    const nextCard = filterOn
-      ? (updated.find((c,i)=>i>idx&&!c.learned) || updated.find(c=>!c.learned))
-      : displayed[safe+1];
+    setDirection(dir);
     setFlipped(false);
-    if (nextCard) setTimeout(()=>{ setIdx(updated.findIndex(c=>c.id===nextCard.id)); setAnimKey(k=>k+1); },280);
-  };
+    setIdx(ti);
+  }, [displayed, cards]);
 
-  // 「まだ覚えてない」ボタン: 状態変更なしで次へ進む
-  const markNotLearned = (e) => {
-    e.stopPropagation();
-    goTo(safe + 1);
+  // Answer buttons
+  const handleAnswer = (learned) => {
+    if (!cards[idx]) return;
+
+    if (learned) {
+      // Mark as learned
+      const updated = cards.map((c,i) => i===idx ? {...c, learned:true} : c);
+      setCards(updated);
+
+      // Find next card
+      if (filterOn) {
+        const next = updated.find((c,i)=>i>idx&&!c.learned) || updated.find(c=>!c.learned);
+        if (next) {
+          const ti = updated.findIndex(c=>c.id===next.id);
+          setDirection('next');
+          setFlipped(false);
+          setIdx(ti);
+        } else {
+          setFlipped(false);
+        }
+      } else {
+        if (safe + 1 < displayed.length) goTo(safe + 1, 'next');
+        else setFlipped(false);
+      }
+    } else {
+      // Just advance
+      if (safe + 1 < displayed.length) goTo(safe + 1, 'next');
+      else setFlipped(false);
+    }
   };
 
   const shuffle = () => {
     setFlipped(false);
-    setTimeout(()=>{
-      const s=[...cards];
-      for(let i=s.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[s[i],s[j]]=[s[j],s[i]];}
-      setCards(s);setIdx(0);setAnimKey(k=>k+1);
-    },130);
+    const s = [...cards];
+    for(let i=s.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[s[i],s[j]]=[s[j],s[i]];}
+    setCards(s); setIdx(0); setDirection(null);
   };
 
   const parseCSV = (text) => {
-    const lines=text.split('\n'),result=[];
+    const lines=text.split('\n'), result=[];
     for(let i=0;i<lines.length;i++){
-      const line=lines[i].trim();if(!line)continue;
-      const vals=[];let cur='',inQ=false;
-      for(const ch of line){if(ch==='"')inQ=!inQ;else if(ch===','&&!inQ){vals.push(cur);cur='';}else cur+=ch;}
+      const line=lines[i].trim(); if(!line) continue;
+      const vals=[]; let cur='', inQ=false;
+      for(const ch of line){ if(ch==='"')inQ=!inQ; else if(ch===','&&!inQ){vals.push(cur);cur='';}else cur+=ch; }
       vals.push(cur);
       if(vals.length>=2){
         const front=vals[0].replace(/^"|"$/g,'').trim();
         const back =vals[1].replace(/^"|"$/g,'').trim();
         let learned=false;
         if(vals[2]){const st=vals[2].replace(/^"|"$/g,'').trim().toLowerCase();learned=st==='1'||st==='true'||st==='済';}
-        if(front&&back)result.push({front,back,learned,id:i});
+        if(front&&back) result.push({front,back,learned,id:i});
       }
     }
-    if(result.length&&(result[0].front.includes('表面')||result[0].front==='front'||result[0].front==='問題'))result.shift();
+    if(result.length&&(result[0].front.includes('表面')||result[0].front==='front'||result[0].front==='問題')) result.shift();
     return result;
   };
 
   const handleFile = (e) => {
-    const file=e.target.files[0];if(!file)return;
+    const file=e.target.files[0]; if(!file) return;
     if(!file.name.endsWith('.csv')){setError('CSVファイル（.csv）を選択してください。');return;}
-    setError('');setFname(file.name);
+    setError(''); setFname(file.name);
     const reader=new FileReader();
     reader.onload=ev=>{
       const parsed=parseCSV(ev.target.result);
-      if(parsed.length){setCards(parsed);setIdx(0);setFlipped(false);setFilterOn(false);}
+      if(parsed.length){setCards(parsed);setIdx(0);setFlipped(false);setFilterOn(false);setDirection(null);}
       else{setError('有効なデータが見つかりませんでした。');setFname('');if(fileRef.current)fileRef.current.value='';}
     };
     reader.onerror=()=>setError('ファイル読み込みエラー。');
@@ -198,9 +353,7 @@ function App() {
     const a=document.createElement('a');a.href=url;a.download=name;
     document.body.appendChild(a);a.click();document.body.removeChild(a);
   };
-
   const downloadSample=()=>dlCSV("表面（問題）,裏面（答え）,状態(0=未/1=済)\nApple,りんご,0\nDog,犬,1\nCat,猫,0\nWater,水,0\nBook,本,1",'sample_flashcards.csv');
-
   const saveProgress=()=>{
     if(!cards.length)return;
     const esc=s=>(s.includes(',')||s.includes('"')||s.includes('\n'))?`"${s.replace(/"/g,'""')}"`:s;
@@ -208,17 +361,15 @@ function App() {
     cards.forEach(c=>{csv+=`${esc(c.front)},${esc(c.back)},${c.learned?1:0}\n`;});
     dlCSV(csv,`${(fname||'flashcards').replace('.csv','').replace('_progress','')}_progress.csv`);
   };
-
   const reset=()=>{
-    setCards([]);setFname('');setIdx(0);setFlipped(false);setError('');setFilterOn(false);
-    ['fc3_cards','fc3_idx','fc3_fname','fc3_filter'].forEach(k=>sto.del(k));
+    setCards([]);setFname('');setIdx(0);setFlipped(false);setError('');setFilterOn(false);setDirection(null);
+    ['fc4_cards','fc4_idx','fc4_fname','fc4_filter'].forEach(k=>sto.del(k));
     if(fileRef.current)fileRef.current.value='';
   };
 
   const learnedCount=cards.filter(c=>c.learned).length;
   const pct=cards.length>0?Math.round(learnedCount/cards.length*100):0;
   const allDone=filterOn&&displayed.length===0&&cards.length>0;
-  const cur=cards[idx];
 
   return (
     <div className="wrap">
@@ -279,44 +430,24 @@ function App() {
             <>
               <div style={{textAlign:'center',marginBottom:8}}>
                 <span style={{fontSize:12,color:'#bbb'}}>
-                  {safe+1} / {displayed.length}{filterOn&&<span style={{marginLeft:4}}>（未学習）</span>}
+                  {safe+1} / {displayed.length}
+                  {filterOn&&<span style={{marginLeft:4}}>（未学習）</span>}
                 </span>
               </div>
 
-              <div className="perspective" style={{width:'100%',height:290,marginBottom:10,cursor:'pointer'}}
-                onClick={()=>setFlipped(f=>!f)}>
-                <div key={animKey} className={`card-inner anim${flipped?' flipped':''}`}>
-
-                  <div className="card-face face-front">
-                    <span className="face-label">QUESTION</span>
-                    {cur?.learned&&<div className="badge-learned"><CheckIco s={11}/> 覚えた</div>}
-                    <div className="face-text" style={{fontSize:cur?.front?.length>18?20:28}}>{cur?.front}</div>
-                    <span className="face-hint">タップして裏返す</span>
-                  </div>
-
-                  <div className="card-face face-back">
-                    <span className="face-label">ANSWER</span>
-                    <div className="face-text" style={{fontSize:cur?.back?.length>18?20:28,color:'#fff'}}>{cur?.back}</div>
-                    <div className="answer-btns">
-                      <button onClick={markNotLearned} className="ans-btn ans-btn-no">
-                        <Svg size={13}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></Svg>
-                        まだ覚えてない
-                      </button>
-                      <button onClick={markLearned} className="ans-btn ans-btn-yes">
-                        <CheckIco s={13}/>
-                        覚えた！
-                      </button>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
+              <FlashCard
+                card={cards[idx]}
+                isFlipped={flipped}
+                onFlip={() => setFlipped(f=>!f)}
+                onAnswer={handleAnswer}
+                direction={direction}
+              />
 
               <div className="nav">
-                <button className="nav-btn" onClick={()=>goTo(safe-1)} disabled={safe===0}><LeftIco s={18}/></button>
+                <button className="nav-btn" onClick={()=>goTo(safe-1,'prev')} disabled={safe===0}><LeftIco s={18}/></button>
                 <span className="nav-counter">{safe+1} / {displayed.length}</span>
                 <button className="nav-btn" onClick={shuffle} title="シャッフル" style={{width:38,height:38}}><ShuffleIco s={15}/></button>
-                <button className="nav-btn nav-primary" onClick={()=>goTo(safe+1)} disabled={safe===displayed.length-1}><RightIco s={18}/></button>
+                <button className="nav-btn nav-primary" onClick={()=>goTo(safe+1,'next')} disabled={safe===displayed.length-1}><RightIco s={18}/></button>
               </div>
             </>
           )}
