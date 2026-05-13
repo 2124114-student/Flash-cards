@@ -44,10 +44,12 @@
     .face-hint  { position: absolute; bottom: 16px; font-size: 11px; color: #ccc; animation: pu 2.5s ease-in-out infinite; }
     @keyframes pu { 0%,100%{opacity:.35} 50%{opacity:.8} }
     .badge-learned { position: absolute; top: 14px; right: 16px; display: flex; align-items: center; gap: 4px; font-size: 11px; color: #666; background: #f3f3ee; border: 1px solid #e0dfd8; border-radius: 6px; padding: 2px 8px; }
-    .learn-btn { position: absolute; bottom: 18px; display: flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; border: 1px solid; font-family: inherit; }
-    .learn-btn-off { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.14); color: #aaa; }
-    .learn-btn-off:hover { background: rgba(255,255,255,0.13); color: #fff; }
-    .learn-btn-on  { background: #fff; border-color: #fff; color: #1a1a1a; }
+    .answer-btns { position: absolute; bottom: 18px; left: 0; right: 0; display: flex; justify-content: center; gap: 10px; padding: 0 24px; }
+    .ans-btn { flex: 1; max-width: 160px; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; border: 1px solid; font-family: inherit; }
+    .ans-btn-no  { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.12); color: #888; }
+    .ans-btn-no:hover  { background: rgba(255,255,255,0.11); color: #ccc; border-color: rgba(255,255,255,0.2); }
+    .ans-btn-yes { background: #fff; border-color: #fff; color: #1a1a1a; }
+    .ans-btn-yes:hover { background: #e8e8e8; }
     /* nav */
     .nav { display: flex; align-items: center; justify-content: center; gap: 8px; }
     .nav-btn { width: 42px; height: 42px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; border: 1px solid #e0dfd8; background: #fff; color: #555; transition: all 0.15s; font-family: inherit; }
@@ -129,16 +131,23 @@ function App() {
     setTimeout(()=>{ setIdx(ti); setAnimKey(k=>k+1); },130);
   },[displayed,cards]);
 
-  const toggleLearned = (e) => {
+  // 「覚えた」ボタン: learnedをtrueにして次へ進む
+  const markLearned = (e) => {
     e.stopPropagation();
     if (!cards[idx]) return;
-    const updated = cards.map((c,i)=>i===idx?{...c,learned:!c.learned}:c);
+    const updated = cards.map((c,i)=>i===idx?{...c,learned:true}:c);
     setCards(updated);
-    if (filterOn && !cards[idx].learned) {
-      const next = updated.find((c,i)=>i>idx&&!c.learned)||updated.find(c=>!c.learned);
-      setFlipped(false);
-      if (next) setTimeout(()=>{ setIdx(updated.findIndex(c=>c.id===next.id)); setAnimKey(k=>k+1); },280);
-    }
+    const nextCard = filterOn
+      ? (updated.find((c,i)=>i>idx&&!c.learned) || updated.find(c=>!c.learned))
+      : displayed[safe+1];
+    setFlipped(false);
+    if (nextCard) setTimeout(()=>{ setIdx(updated.findIndex(c=>c.id===nextCard.id)); setAnimKey(k=>k+1); },280);
+  };
+
+  // 「まだ覚えてない」ボタン: 状態変更なしで次へ進む
+  const markNotLearned = (e) => {
+    e.stopPropagation();
+    goTo(safe + 1);
   };
 
   const shuffle = () => {
@@ -288,10 +297,16 @@ function App() {
                   <div className="card-face face-back">
                     <span className="face-label">ANSWER</span>
                     <div className="face-text" style={{fontSize:cur?.back?.length>18?20:28,color:'#fff'}}>{cur?.back}</div>
-                    <button onClick={toggleLearned} className={`learn-btn ${cur?.learned?'learn-btn-on':'learn-btn-off'}`}>
-                      <CheckIco s={13}/>
-                      {cur?.learned?'覚えた！（解除する）':'「覚えた」にする'}
-                    </button>
+                    <div className="answer-btns">
+                      <button onClick={markNotLearned} className="ans-btn ans-btn-no">
+                        <Svg size={13}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></Svg>
+                        まだ覚えてない
+                      </button>
+                      <button onClick={markLearned} className="ans-btn ans-btn-yes">
+                        <CheckIco s={13}/>
+                        覚えた！
+                      </button>
+                    </div>
                   </div>
 
                 </div>
